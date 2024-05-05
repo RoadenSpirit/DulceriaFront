@@ -1,0 +1,170 @@
+---
+// Importamos el componente de Astro para manejar datos dinámicos
+import { Astro } from 'astro';
+
+// Definimos una función asíncrona para obtener los datos de las solicitudes
+async function getSolicitudes() {
+ const response = await fetch('http://localhost:8000/servicio/list/');
+ const solicitudes = await response.json();
+ return solicitudes;
+}
+
+// Obtenemos las solicitudes y las pasamos como propiedades al componente
+const solicitudes = Astro.props.solicitudes || await getSolicitudes();
+console.log(solicitudes)
+---
+
+
+
+
+<!-- Aquí es donde renderizamos las solicitudes en la tabla -->
+<div class="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
+  <div class="border shadow-sm rounded-lg p-2">
+     <div class="relative w-full overflow-auto">
+       <table class="w-full caption-bottom text-sm">
+         <!-- ... -->
+         <tbody class="[&amp;_tr:last-child]:border-0">
+          <thead class="[&amp;_tr]:border-b">
+  <tr class=" bg-black text-white invisible md:visible  border-b transition-colors hover:text-orange-700 data-[state=selected]:bg-muted ">
+    <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 w-[100px]">
+          Order
+    </th>
+        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 min-w-[150px]">
+          Name
+        </th>
+        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
+          Correo
+        </th>
+        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
+          Date
+        </th>
+        <th class="h-12 px-4 align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 text-center">
+          Description
+        </th>
+        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 hidden sm:table-cell">
+          Service
+        </th>
+        <th class="h-12 px-4 align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 text-left">
+          Actions
+        </th>
+      </tr>
+    </thead>
+           {solicitudes.map(solicitud => (
+             <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+               <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 font-medium">{solicitud.id}</td>
+               <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{solicitud.nombre}</td>
+               <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
+                 {solicitud.correo}
+               </td>
+               <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
+                 {solicitud.fecha} <!-- Asumiendo que la fecha está disponible en el objeto solicitud -->
+               </td>
+               <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 text-left">{solicitud.descripcion}</td>
+               <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden sm:table-cell">{solicitud.tipo_servicio}</td>
+               <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 text-right">
+                <button class="button delete" data-id={solicitud.id}>
+                  <svg viewBox="0 0 448 512" class="svgIcon"><path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path></svg>
+                 </button>
+               </td>
+             </tr>
+           ))}
+         </tbody>
+       </table>
+     </div>
+  </div>
+  <!-- ... -->
+ </div>
+
+ <script>
+ // Encuentra todos los botones con la clase `delete` en la página.
+ const deleteButtons = document.querySelectorAll('button.delete');
+
+ // Maneja los clics en cada botón de eliminar.
+ deleteButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const id = button.getAttribute('data-id');
+      deleteSolicitud(id);
+    });
+ });
+
+ function deleteSolicitud(id) {
+    fetch(`http://localhost:8000/servicio/${id}/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => {
+      if (response.ok) {
+        alert('Solicitud eliminada con éxito!');
+        location.reload()
+      } else {
+        alert('Hubo un problema al eliminar la solicitud');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Hubo un error al eliminar la solicitud');
+    });
+ }
+
+
+</script>
+ <!-- Estilos definidos en el archivo -->
+ <style>
+  /* ... (aquí van los estilos existentes) ... */
+ 
+  /* Aseguramos que los estilos se apliquen correctamente */
+  tr:hover {
+     background-color: #e76d0949;
+     cursor: pointer;
+  }
+ 
+  @media (max-width: 500px) {
+     tr {
+       display: flex;
+       flex-direction: column;
+     }
+  }
+ 
+  .button {
+     width: 35px;
+     height: 35px;
+     border-radius: 50%;
+     background-color: rgb(20, 20, 20);
+     border: none;
+     font-weight: 600;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.164);
+     cursor: pointer;
+     transition-duration: .3s;
+     overflow: hidden;
+     position: relative;
+  }
+ 
+  .svgIcon {
+     width: 12px;
+     transition-duration: .3s;
+  }
+ 
+  .svgIcon path {
+     fill: white;
+  }
+ 
+  .buttom {
+     display: flex;
+     justify-content: center;
+     align-items: center;
+  }
+ 
+  .delete {
+ 
+  }
+ 
+  .delete:active {
+     color: #666;
+     box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+  }
+ </style>

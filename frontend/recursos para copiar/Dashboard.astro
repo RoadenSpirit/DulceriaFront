@@ -1,0 +1,61 @@
+---
+import Notification from "../component/Notification.astro"
+import Gesproducts from "../component/Gesproducts.astro"
+import Useradmin from "../component/Useradmin.astro"
+import Productadmin from "../component/Productadmin.astro"
+import Layout from "../layout/Layout.astro"
+
+
+---
+  <Layout>
+  <Notification/>
+  <Gesproducts/>
+  <Useradmin/>
+  <Productadmin/>
+</Layout>
+
+<script>
+
+import { checkAdminStatus } from '../utils/protectAdmin';
+const token = localStorage.getItem('token'); // Obtiene el token del almacenamiento local
+
+(async () => {
+   if (!token) {
+     // Si no existe un token, redirige al usuario a la página de inicio de sesión
+     window.location.href = '/';
+     return;
+   }
+
+   const isAdmin = await checkAdminStatus(token);
+   if (!isAdmin) {
+     // Si el usuario no es administrador, redirige al usuario a la página de inicio de sesión
+     window.location.href = '/';
+   }
+})();
+ </script> 
+
+
+
+
+
+</div>
+
+  <style>
+   #window1, #window2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+#window1 h1, #window2 h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+#window1 button, #window2 button {
+  font-size: 1.2rem;
+  margin-top: 1rem;
+}
+
+  </style>
