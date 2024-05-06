@@ -5,8 +5,6 @@ import vercel from "@astrojs/vercel/serverless";
 // https://astro.build/config
 export default defineConfig({
   integrations: [tailwind()],
-  site: 'https://RoadenSpirit.github.io',
-  base: 'DulceriaFront',
   output: "server",
   adapter: vercel()
 });
